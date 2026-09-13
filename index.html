@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3G | Catálogo 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* PALETA DE COLORES Y VARIABLES */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #1a1a1a;
+            --black: #111111;
+            --white: #ffffff;
+            --accent: #6C5CE7; /* Color llamativo y juvenil para contrastar con tu logo B/N */
+            --accent-hover: #5A4BCE;
+            --danger: #ff4757;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* HEADER & NAVEGACIÓN */
+        header {
+            background-color: var(--white);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -1px;
+        }
+
+        /* Espacio para tu logo real */
+        .logo-img {
+            height: 50px;
+            width: auto;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 400px;
+            margin: 0 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 30px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .btn-primary { background-color: var(--black); color: var(--white); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        .btn-accent { background-color: var(--accent); color: var(--white); }
+        .btn-accent:hover { background-color: var(--accent-hover); }
+        
+        .btn-danger { background-color: var(--danger); color: white; padding: 5px 10px; font-size: 12px;}
+
+        .admin-controls { display: none; margin-top: 20px; gap: 10px; flex-wrap: wrap; }
+        .is-admin .admin-controls { display: flex; }
+
+        /* MAIN CONTENT */
+        main { padding: 40px 5%; }
+
+        /* CATEGORÍAS */
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .cat-chip {
+            padding: 8px 16px;
+            background: var(--white);
+            border: 2px solid var(--black);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .cat-chip.active { background: var(--black); color: var(--white); }
+        
+        /* GRILLA DE PRODUCTOS */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover { transform: translateY(-10px); }
+
+        .product-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background-color: #eee;
+        }
+
+        .product-info { padding: 20px; }
+        .product-title { font-size: 18px; font-weight: 900; margin-bottom: 5px; }
+        .product-category { font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }
+        .product-desc { font-size: 14px; color: #555; line-height: 1.5; }
+
+        .admin-actions {
+            display: none;
+            justify-content: space-between;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .is-admin .admin-actions { display: flex; }
+
+        /* MODALES */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 { margin-bottom: 20px; font-weight: 900; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: inherit;
+        }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA -->
+    <header>
+        <div class="logo-container">
+            <!-- Si tienes la imagen en la misma carpeta, usa src="image_bb1905.jpg" -->
+            <img src="image_bb1905.jpg" alt="3G Logo" class="logo-img" onerror="this.style.display='none'">
+            <span id="brandName">3G Store</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Busca tus diseños 3D..." onkeyup="searchProducts()">
+        </div>
+        <button class="btn btn-primary" id="loginBtn" onclick="toggleLogin()">Acceso Staff</button>
+    </header>
+
+    <main id="mainContainer">
+        <!-- CONTROLES DE ADMINISTRADOR -->
+        <div class="admin-controls">
+            <button class="btn btn-accent" onclick="openProductModal()">+ Nuevo Producto</button>
+            <button class="btn btn-primary" onclick="openCategoryModal()">+ Nueva Categoría</button>
+            <button class="btn btn-danger" onclick="deleteCategoryModal()">- Eliminar Categoría</button>
+        </div>
+
+        <br>
+        
+        <!-- CATEGORÍAS -->
+        <div class="categories" id="categoriesContainer">
+            <!-- Se llenan por JS -->
+        </div>
+
+        <!-- PRODUCTOS -->
+        <div class="products-grid" id="productsGrid">
+            <!-- Se llenan por JS -->
+        </div>
+    </main>
+
+    <!-- MODAL DE LOGIN -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>Acceso Restringido</h2>
+            <div class="form-group">
+                <label>Código de Acceso:</label>
+                <input type="password" id="passcodeInput" placeholder="Ingresa tu clave...">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('loginModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="checkPasscode()">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRODUCTOS -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Agregar Producto</h2>
+            <input type="hidden" id="prodId">
+            <div class="form-group">
+                <label>Título:</label>
+                <input type="text" id="prodTitle">
+            </div>
+            <div class="form-group">
+                <label>Categoría:</label>
+                <select id="prodCategory"></select>
+            </div>
+            <div class="form-group">
+                <label>Descripción:</label>
+                <textarea id="prodDesc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Fotografía:</label>
+                <input type="file" id="prodImage" accept="image/*">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('productModal')">Cancelar</button>
+                <button class="btn btn-accent" onclick="saveProduct()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CATEGORÍAS -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <h2>Nueva Categoría</h2>
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" id="newCatName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('categoryModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveCategory()">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ESTADO DE LA APLICACIÓN
+        const ACCESS_CODE = "3Gadmin"; // <--- CAMBIA ESTA CLAVE SI QUIERES
+        let isAdmin = false;
+        
+        // Cargar datos de LocalStorage (o poner por defecto)
+        let categories = JSON.parse(localStorage.getItem('3g_categories')) || ["Novedades", "Figuras", "Llaveros", "Repuestos"];
+        let products = JSON.parse(localStorage.getItem('3g_products')) || [];
+        
+        let currentFilter = "Todos";
+
+        // INICIALIZAR PÁGINA
+        function init() {
+            renderCategories();
+            renderProducts();
+            updateAdminUI();
+        }
+
+        // ====== SEGURIDAD Y LOGIN ======
+        function toggleLogin() {
+            if(isAdmin) {
+                isAdmin = false;
+                document.getElementById('loginBtn').innerText = "Acceso Staff";
+                updateAdminUI();
+            } else {
+                document.getElementById('loginModal').classList.add('active');
+            }
+        }
+
+        function checkPasscode() {
+            const input = document.getElementById('passcodeInput').value;
+            if (input === ACCESS_CODE) {
+                isAdmin = true;
+                document.getElementById('loginBtn').innerText = "Cerrar Sesión";
+                closeModal('loginModal');
+                document.getElementById('passcodeInput').value = '';
+                updateAdminUI();
+            } else {
+                alert("Código incorrecto.");
+            }
+        }
+
+        function updateAdminUI() {
+            const main = document.getElementById('mainContainer');
+            if(isAdmin) {
+                main.classList.add('is-admin');
+            } else {
+                main.classList.remove('is-admin');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // ====== CATEGORÍAS ======
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            const select = document.getElementById('prodCategory');
+            
+            // Render en la barra superior
+            let html = `<div class="cat-chip ${currentFilter === 'Todos' ? 'active' : ''}" onclick="filterCategory('Todos')">Todos</div>`;
+            categories.forEach(cat => {
+                html += `<div class="cat-chip ${currentFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</div>`;
+            });
+            container.innerHTML = html;
+
+            // Render en el modal de productos
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            renderCategories();
+            renderProducts();
+        }
+
+        function openCategoryModal() {
+            document.getElementById('newCatName').value = '';
+            document.getElementById('categoryModal').classList.add('active');
+        }
+
+        function saveCategory() {
+            const name = document.getElementById('newCatName').value.trim();
+            if (name && !categories.includes(name)) {
+                categories.push(name);
+                saveData();
+                renderCategories();
+                closeModal('categoryModal');
+            }
+        }
+
+        function deleteCategoryModal() {
+            const cat = prompt("Escribe el nombre de la categoría a eliminar:");
+            if(cat && categories.includes(cat)) {
+                categories = categories.filter(c => c !== cat);
+                saveData();
+                renderCategories();
+            }
+        }
+
+        // ====== PRODUCTOS ======
+        function renderProducts(searchQuery = "") {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            // Filtrar por categoría y búsqueda
+            let filtered = products;
+            if (currentFilter !== 'Todos') {
+                filtered = filtered.filter(p => p.category === currentFilter);
+            }
+            if (searchQuery) {
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            if(filtered.length === 0) {
+                grid.innerHTML = '<p>No hay productos en esta sección por ahora.</p>';
+                return;
+            }
+
+            filtered.forEach(prod => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${prod.image}" class="product-img" alt="${prod.title}">
+                        <div class="product-info">
+                            <div class="product-category">${prod.category}</div>
+                            <div class="product-title">${prod.title}</div>
+                            <div class="product-desc">${prod.description}</div>
+                            <div class="admin-actions">
+                                <button class="btn btn-accent" style="padding: 5px 10px; font-size:12px;" onclick="editProduct(${prod.id})">Editar</button>
+                                <button class="btn btn-danger" onclick="deleteProduct(${prod.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value;
+            renderProducts(query);
+        }
+
+        function openProductModal(id = null) {
+            document.getElementById('productModal').classList.add('active');
+            const fileInput = document.getElementById('prodImage');
+            fileInput.value = ""; // reset file input
+
+            if (id !== null) {
+                const prod = products.find(p => p.id === id);
+                document.getElementById('modalTitle').innerText = "Editar Producto";
+                document.getElementById('prodId').value = prod.id;
+                document.getElementById('prodTitle').value = prod.title;
+                document.getElementById('prodCategory').value = prod.category;
+                document.getElementById('prodDesc').value = prod.description;
+                // Nota: Por seguridad del navegador, no podemos pre-cargar archivos en input type="file"
+                // Guardaremos la imagen anterior en un atributo si el usuario no sube una nueva.
+                fileInput.setAttribute('data-old-img', prod.image);
+            } else {
+                document.getElementById('modalTitle').innerText = "Agregar Producto";
+                document.getElementById('prodId').value = "";
+                document.getElementById('prodTitle').value = "";
+                document.getElementById('prodDesc').value = "";
+                fileInput.removeAttribute('data-old-img');
+            }
+        }
+
+        function saveProduct() {
+            const id = document.getElementById('prodId').value;
+            const title = document.getElementById('prodTitle').value;
+            const category = document.getElementById('prodCategory').value;
+            const desc = document.getElementById('prodDesc').value;
+            const fileInput = document.getElementById('prodImage');
+            
+            if(!title || !desc) {
+                alert("Completa el título y la descripción.");
+                return;
+            }
+
+            // Función para finalizar el guardado (después de procesar la imagen)
+            const finalizeSave = (imgBase64) => {
+                if (id) {
+                    // Editar
+                    const index = products.findIndex(p => p.id == id);
+                    products[index] = { id: parseInt(id), title, category, description: desc, image: imgBase64 };
+                } else {
+                    // Nuevo
+                    const newId = Date.now();
+                    products.push({ id: newId, title, category, description: desc, image: imgBase64 });
+                }
+                saveData();
+                renderProducts();
+                closeModal('productModal');
+            };
+
+            // Lógica para procesar la imagen
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    finalizeSave(e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // Si no subió imagen nueva, usar la vieja o una por defecto
+                const oldImg = fileInput.getAttribute('data-old-img');
+                const defaultImg = 'https://via.placeholder.com/300x250?text=Impresion+3D';
+                finalizeSave(oldImg ? oldImg : defaultImg);
+            }
+        }
+
+        function editProduct(id) { openProductModal(id); }
+
+        function deleteProduct(id) {
+            if(confirm("¿Seguro que deseas eliminar este producto?")) {
+                products = products.filter(p => p.id !== id);
+                saveData();
+                renderProducts();
+            }
+        }
+
+        // ====== UTILIDADES ======
+        function saveData() {
+            localStorage.setItem('3g_categories', JSON.stringify(categories));
+            localStorage.setItem('3g_products', JSON.stringify(products));
+        }
+
+        // Iniciar
+        init();
+    </script>
+</body>
+</html>
