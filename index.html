@@ -3,140 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3G Store | Impresión 3D</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>3G Store | Catálogo 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --text-color: #1a1a1a;
-            --black: #111111;
+            --bg-color: #f4f5f7;
+            --text-color: #111111;
+            --black: #000000;
             --white: #ffffff;
-            --accent: #6C5CE7;
-            --accent-hover: #5A4BCE;
+            --accent: #6C5CE7; /* Morado juvenil vibrante */
             --danger: #ff4757;
+            --gray: #888888;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); }
+        body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
 
+        /* CABECERA FLOTANTE */
         header {
-            background-color: var(--white);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid #eaeaea;
         }
 
-        .logo-container { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 24px; cursor: pointer; }
-        .logo-img { height: 45px; width: auto; object-fit: contain; }
+        .logo-container { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 22px; cursor: pointer; letter-spacing: -1px; }
+        .logo-img { height: 40px; width: auto; object-fit: contain; }
 
-        .search-bar { flex-grow: 1; max-width: 350px; margin: 0 20px; }
+        .search-bar { flex-grow: 1; max-width: 400px; margin: 0 20px; position: relative; }
         .search-bar input {
-            width: 100%; padding: 10px 20px; border: 2px solid #eee; border-radius: 30px; outline: none; font-size: 14px;
+            width: 100%; padding: 12px 20px; border: none; border-radius: 30px; 
+            background: #f0f0f0; outline: none; font-size: 14px; font-weight: 600; transition: background 0.3s;
         }
-        .search-bar input:focus { border-color: var(--accent); }
-
-        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .search-bar input:focus { background: #e5e5e5; }
 
         .btn {
-            padding: 10px 18px; border: none; border-radius: 30px; cursor: pointer; font-weight: 700; font-size: 13px;
-            transition: transform 0.2s, background 0.3s; display: inline-flex; align-items: center; gap: 5px;
+            padding: 10px 20px; border: none; border-radius: 30px; cursor: pointer; font-weight: 700; font-size: 13px;
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
         }
         .btn-primary { background-color: var(--black); color: var(--white); }
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:hover { transform: scale(1.05); }
         .btn-accent { background-color: var(--accent); color: var(--white); }
-        .btn-accent:hover { background-color: var(--accent-hover); }
-        .btn-danger { background-color: var(--danger); color: white; padding: 5px 10px; font-size: 12px; }
+        .btn-danger { background-color: var(--danger); color: white; padding: 6px 12px; font-size: 12px; }
 
-        .admin-controls { display: none; margin-bottom: 25px; gap: 10px; flex-wrap: wrap; }
+        main { padding: 30px 5%; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
+
+        /* ANIMACIONES DE VISTAS */
+        .view-section { display: none; animation: fadeIn 0.4s ease forwards; }
+        .view-section.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CONTROLES ADMIN */
+        .admin-controls { display: none; margin-bottom: 25px; gap: 10px; flex-wrap: wrap; background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .is-admin .admin-controls { display: flex; }
 
-        main { padding: 30px 5%; max-width: 1200px; margin: 0 auto; }
-
-        /* VISTAS (Páginas internas) */
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* CATEGORÍAS */
-        .categories { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; }
-        .cat-chip {
-            padding: 8px 16px; background: var(--white); border: 2px solid var(--black); border-radius: 20px;
-            cursor: pointer; font-weight: 700; white-space: nowrap; transition: all 0.3s; font-size: 14px;
-        }
-        .cat-chip.active { background: var(--black); color: var(--white); }
-
         /* GRILLA MINIMALISTA (Dashboard Principal) */
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
 
         .product-card {
             background: var(--white); border-radius: 20px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: transform 0.3s; cursor: pointer;
-            display: flex; flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); cursor: pointer;
+            display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
 
-        .product-img-container { width: 100%; height: 260px; background-color: #eee; overflow: hidden; position: relative; }
-        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .product-card:hover .product-img { transform: scale(1.03); }
+        .product-img-container { width: 100%; aspect-ratio: 1 / 1; background-color: #f0f0f0; overflow: hidden; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-card:hover .product-img { transform: scale(1.08); }
 
-        .product-preview-info { padding: 15px 20px; display: flex; flex-direction: column; gap: 5px; }
-        .product-preview-cat { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; }
-        .product-preview-title { font-size: 16px; font-weight: 900; color: var(--text-color); }
+        .product-preview-info { padding: 15px; text-align: center; }
+        .product-preview-title { font-size: 15px; font-weight: 800; color: var(--text-color); }
 
         /* VISTA DE DETALLE DE PRODUCTO */
-        .back-nav { margin-bottom: 20px; }
-        .detail-container {
-            background: var(--white); border-radius: 25px; padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
-        }
-        @media(max-width: 768px) { .detail-container { grid-template-columns: 1fr; gap: 20px; } }
+        .back-btn { background: transparent; border: 2px solid var(--black); color: var(--black); margin-bottom: 25px; font-size: 14px; }
+        .back-btn:hover { background: var(--black); color: var(--white); transform: translateX(-5px); }
 
-        .detail-img-box { width: 100%; border-radius: 15px; overflow: hidden; background: #eee; cursor: zoom-in; }
-        .detail-img { width: 100%; height: 400px; object-fit: cover; display: block; }
+        .detail-container {
+            background: var(--white); border-radius: 30px; padding: 35px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;
+        }
+        @media(max-width: 768px) { .detail-container { grid-template-columns: 1fr; gap: 30px; padding: 20px; } }
+
+        .detail-img-box { width: 100%; border-radius: 20px; overflow: hidden; background: #f9f9f9; cursor: zoom-in; position: relative; }
+        .detail-img-box::after { content: '🔍 Ampliar'; position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; pointer-events: none; opacity: 0; transition: opacity 0.2s;}
+        .detail-img-box:hover::after { opacity: 1; }
+        .detail-img { width: 100%; height: auto; max-height: 500px; object-fit: cover; display: block; }
         
         .detail-info { display: flex; flex-direction: column; gap: 15px; }
-        .detail-category { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .detail-title { font-size: 28px; font-weight: 900; }
-        .detail-price { font-size: 24px; font-weight: 900; color: var(--black); }
-        .detail-desc { font-size: 15px; color: #555; line-height: 1.6; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; }
+        .detail-category { display: inline-block; background: #f0f0f0; color: var(--gray); font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; align-self: flex-start; letter-spacing: 1px; }
+        .detail-title { font-size: 32px; font-weight: 900; line-height: 1.1; }
+        .detail-price { font-size: 28px; font-weight: 900; color: var(--accent); }
+        .detail-desc { font-size: 15px; color: #555; line-height: 1.7; margin-top: 10px; }
 
-        .admin-detail-actions { display: none; gap: 10px; margin-top: 10px; }
+        .admin-detail-actions { display: none; gap: 10px; margin-top: 25px; padding-top: 25px; border-top: 1px solid #eee; }
         .is-admin .admin-detail-actions { display: flex; }
 
-        /* MODALES GENERALES */
+        /* MODALES */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000;
-            justify-content: center; align-items: center; padding: 20px;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s;
         }
-        .modal.active { display: flex; }
+        .modal.active { display: flex; opacity: 1; }
         .modal-content {
-            background: var(--white); padding: 30px; border-radius: 20px; width: 100%; max-width: 450px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+            background: var(--white); padding: 35px; border-radius: 25px; width: 100%; max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform: scale(0.9); transition: transform 0.3s;
         }
-        .modal-content h2 { margin-bottom: 20px; font-weight: 900; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 13px; }
+        .modal.active .modal-content { transform: scale(1); }
+        
+        .modal-content h2 { margin-bottom: 25px; font-weight: 900; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 13px; color: #555; }
         .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 10px; font-family: inherit; font-size: 14px;
+            width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; font-family: inherit; font-size: 14px; background: #fafafa;
         }
-        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); background: white; outline: none; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px; }
 
-        /* MODAL PARA AMPLIAR IMAGEN */
-        .image-modal-content {
-            background: transparent; box-shadow: none; max-width: 800px; padding: 0; text-align: center; position: relative;
-        }
-        .image-modal-content img {
-            width: 100%; max-height: 80vh; object-fit: contain; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        /* MODAL IMAGEN GRANDE */
+        .image-modal-content { background: transparent; box-shadow: none; max-width: 900px; padding: 0; text-align: center; }
+        .image-modal-content img { width: 100%; max-height: 85vh; object-fit: contain; border-radius: 15px; }
         .close-img-modal {
-            position: absolute; top: -40px; right: 0; background: white; border: none; font-size: 18px; font-weight: 900;
-            width: 35px; height: 35px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: absolute; top: -50px; right: 0; background: white; color: black; border: none; font-size: 20px; font-weight: 900;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: transform 0.2s;
         }
+        .close-img-modal:hover { transform: scale(1.1); }
     </style>
 </head>
 <body id="bodyContainer">
@@ -147,7 +148,7 @@
             <span>3G Store</span>
         </div>
         <div class="search-bar" id="searchBarContainer">
-            <input type="text" id="searchInput" placeholder="Busca tus diseños 3D..." onkeyup="renderProducts()">
+            <input type="text" id="searchInput" placeholder="Buscar diseños..." onkeyup="renderProducts()">
         </div>
         <div class="header-actions">
             <button class="btn btn-primary" id="loginBtn" onclick="toggleLogin()">Staff</button>
@@ -155,46 +156,42 @@
     </header>
 
     <main>
-        <!-- CONTROLES DE ADMINISTRADOR -->
+        <!-- CONTROLES ADMIN (Ocultos a menos que pongas clave) -->
         <div class="admin-controls">
             <button class="btn btn-accent" onclick="openProductModal()">+ Nuevo Producto</button>
             <button class="btn btn-primary" onclick="openCategoryModal()">+ Nueva Categoría</button>
-            <button class="btn btn-danger" onclick="deleteCategoryModal()">- Eliminar Categoría</button>
         </div>
 
-        <!-- VISTA 1: DASHBOARD PRINCIPAL (FEED) -->
+        <!-- VISTA 1: DASHBOARD (Solo Foto y Título) -->
         <section id="homeView" class="view-section active">
-            <div class="categories" id="categoriesContainer"></div>
             <div class="products-grid" id="productsGrid"></div>
         </section>
 
-        <!-- VISTA 2: DETALLE DE PRODUCTO -->
+        <!-- VISTA 2: DETALLES DEL PRODUCTO -->
         <section id="detailView" class="view-section">
-            <div class="back-nav">
-                <button class="btn btn-primary" onclick="goHome()">← Volver al Catálogo</button>
-            </div>
+            <button class="btn back-btn" onclick="goHome()">← Menú Principal</button>
             <div class="detail-container" id="detailContainerContent">
-                <!-- Se llena dinámicamente -->
+                <!-- Se llena por JavaScript -->
             </div>
         </section>
     </main>
 
-    <!-- MODAL DE LOGIN -->
+    <!-- MODAL DE ACCESO -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <h2>Acceso Staff</h2>
+            <h2>Acceso Privado</h2>
             <div class="form-group">
-                <label>Código de Acceso:</label>
-                <input type="password" id="passcodeInput" placeholder="Clave...">
+                <label>Clave de administrador:</label>
+                <input type="password" id="passcodeInput" placeholder="••••••••">
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('loginModal')">Cancelar</button>
+                <button class="btn" style="background:#eee; color:black;" onclick="closeModal('loginModal')">Cancelar</button>
                 <button class="btn btn-primary" onclick="checkPasscode()">Entrar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PARA VER IMAGEN GRANDE -->
+    <!-- MODAL PARA VER IMAGEN EN GRANDE -->
     <div class="modal" id="imageModal" onclick="closeImageModal()">
         <div class="modal-content image-modal-content" onclick="event.stopPropagation()">
             <button class="close-img-modal" onclick="closeImageModal()">✕</button>
@@ -202,48 +199,48 @@
         </div>
     </div>
 
-    <!-- MODAL DE PRODUCTOS (Crear / Editar) -->
+    <!-- MODAL CREAR/EDITAR PRODUCTO -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <h2 id="modalTitle">Producto</h2>
             <input type="hidden" id="prodId">
             <div class="form-group">
                 <label>Título:</label>
-                <input type="text" id="prodTitle">
+                <input type="text" id="prodTitle" placeholder="Ej. Llavero Articulado">
             </div>
             <div class="form-group">
-                <label>Precio (Ej. Q30.00):</label>
-                <input type="text" id="prodPrice">
+                <label>Precio:</label>
+                <input type="text" id="prodPrice" placeholder="Ej. Q30.00">
             </div>
             <div class="form-group">
                 <label>Categoría:</label>
                 <select id="prodCategory"></select>
             </div>
             <div class="form-group">
-                <label>Descripción:</label>
-                <textarea id="prodDesc" rows="3"></textarea>
+                <label>Descripción detallada:</label>
+                <textarea id="prodDesc" rows="4" placeholder="Material, tamaño, colores..."></textarea>
             </div>
             <div class="form-group">
-                <label>Nombre de la foto en la carpeta:</label>
+                <label>Nombre de la foto (ej. foto.jpg):</label>
                 <input type="text" id="prodImage" placeholder="17876.jpg">
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('productModal')">Cancelar</button>
+                <button class="btn" style="background:#eee; color:black;" onclick="closeModal('productModal')">Cancelar</button>
                 <button class="btn btn-accent" onclick="saveProduct()">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE CATEGORÍAS -->
+    <!-- MODAL NUEVA CATEGORÍA -->
     <div class="modal" id="categoryModal">
         <div class="modal-content">
             <h2>Nueva Categoría</h2>
             <div class="form-group">
                 <label>Nombre:</label>
-                <input type="text" id="newCatName">
+                <input type="text" id="newCatName" placeholder="Ej. Lámparas 3D">
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('categoryModal')">Cancelar</button>
+                <button class="btn" style="background:#eee; color:black;" onclick="closeModal('categoryModal')">Cancelar</button>
                 <button class="btn btn-accent" onclick="saveCategory()">Agregar</button>
             </div>
         </div>
@@ -252,9 +249,8 @@
     <script>
         const ACCESS_CODE = "3Gadmin";
         let isAdmin = false;
-        let currentFilter = "Todos";
 
-        // BASE DE DATOS INICIAL
+        // Base de datos (Se guarda en tu código HTML)
         let categories = ["Novedades", "Encendedores"];
         let products = [
             { 
@@ -262,13 +258,13 @@
                 title: "Funda para Encendedor Bloques", 
                 price: "Q30.00", 
                 category: "Encendedores", 
-                description: "Diseño estilo bloque de construcción. Tamaño ideal para encendedor BIC estándar.", 
+                description: "Diseño estilo bloque de construcción. Tamaño ideal para encendedor BIC estándar.\n precio mayorita (unaidades > 10): Q20", 
                 image: "17876.jpg" 
             }
         ];
 
         function init() {
-            renderCategories();
+            updateCategorySelect();
             renderProducts();
         }
 
@@ -285,24 +281,30 @@
         function checkPasscode() {
             if (document.getElementById('passcodeInput').value === ACCESS_CODE) {
                 isAdmin = true;
-                document.getElementById('loginBtn').innerText = "Salir";
+                document.getElementById('loginBtn').innerText = "Cerrar Sesión";
                 document.getElementById('bodyContainer').classList.add('is-admin');
                 closeModal('loginModal');
                 document.getElementById('passcodeInput').value = '';
-                renderProducts();
+                
+                // Si estamos en la vista de detalle de un producto, la actualizamos para mostrar botones admin
+                if(document.getElementById('detailView').classList.contains('active')) {
+                    const currentId = document.getElementById('detailContainerContent').getAttribute('data-current-id');
+                    if(currentId) showProductDetail(parseInt(currentId));
+                }
             } else {
-                alert("Clave incorrecta");
+                alert("Clave incorrecta. Solo acceso para dueños.");
             }
         }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // NAVEGACIÓN ENTRE VISTAS
+        // NAVEGACIÓN
         function goHome() {
             document.getElementById('homeView').classList.add('active');
             document.getElementById('detailView').classList.remove('active');
             document.getElementById('searchBarContainer').style.display = 'block';
-            window.scrollTo(0, 0);
+            renderProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showProductDetail(id) {
@@ -310,18 +312,21 @@
             if(!prod) return;
 
             const container = document.getElementById('detailContainerContent');
+            container.setAttribute('data-current-id', id); // Guardar id actual por si inicia sesión
+            
             container.innerHTML = `
                 <div class="detail-img-box" onclick="openImageModal('${prod.image}')">
-                    <img src="${prod.image}" class="detail-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/400x400?text=3G+Store'">
+                    <img src="${prod.image}" class="detail-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/600x600?text=3G+Store'">
                 </div>
                 <div class="detail-info">
                     <div class="detail-category">${prod.category}</div>
                     <h1 class="detail-title">${prod.title}</h1>
                     <div class="detail-price">${prod.price}</div>
                     <div class="detail-desc">${prod.description}</div>
+                    
                     <div class="admin-detail-actions">
-                        <button class="btn btn-accent" onclick="editProduct(${prod.id})">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteProduct(${prod.id})">Eliminar</button>
+                        <button class="btn btn-accent" onclick="editProduct(${prod.id})">Editar Información</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${prod.id})">Eliminar Producto</button>
                     </div>
                 </div>
             `;
@@ -329,7 +334,7 @@
             document.getElementById('homeView').classList.remove('active');
             document.getElementById('detailView').classList.add('active');
             document.getElementById('searchBarContainer').style.display = 'none';
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // AMPLIAR IMAGEN
@@ -341,51 +346,30 @@
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
-            const select = document.getElementById('prodCategory');
-            
-            let html = `<div class="cat-chip ${currentFilter === 'Todos' ? 'active' : ''}" onclick="filterCategory('Todos')">Todos</div>`;
-            categories.forEach(cat => {
-                html += `<div class="cat-chip ${currentFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</div>`;
-            });
-            container.innerHTML = html;
-
-            select.innerHTML = '';
-            categories.forEach(cat => {
-                select.innerHTML += `<option value="${cat}">${cat}</option>`;
-            });
-        }
-
-        function filterCategory(cat) {
-            currentFilter = cat;
-            renderCategories();
-            renderProducts();
-        }
-
+        // RENDERIZAR DASHBOARD
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = '';
 
             let filtered = products;
-            if (currentFilter !== 'Todos') filtered = filtered.filter(p => p.category === currentFilter);
-            if (searchQuery) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery) || p.description.toLowerCase().includes(searchQuery));
+            if (searchQuery) {
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery) || p.description.toLowerCase().includes(searchQuery));
+            }
 
             if(filtered.length === 0) {
-                grid.innerHTML = '<p>No hay productos disponibles.</p>';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color:#888;">No se encontraron productos.</p>';
                 return;
             }
 
-            // DASHBOARD PRINCIPAL MINIMALISTA (Solo foto, categoría y título)
+            // Vista ultra minimalista: Solo Foto y Título
             filtered.forEach(prod => {
                 grid.innerHTML += `
                     <div class="product-card" onclick="showProductDetail(${prod.id})">
                         <div class="product-img-container">
-                            <img src="${prod.image}" class="product-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/300x260?text=3G+Store'">
+                            <img src="${prod.image}" class="product-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/300x300?text=3G+Store'">
                         </div>
                         <div class="product-preview-info">
-                            <div class="product-preview-cat">${prod.category}</div>
                             <div class="product-preview-title">${prod.title}</div>
                         </div>
                     </div>
@@ -393,20 +377,23 @@
             });
         }
 
+        function updateCategorySelect() {
+            const select = document.getElementById('prodCategory');
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        // ACCIONES DE ADMIN
         function openCategoryModal() { document.getElementById('categoryModal').classList.add('active'); }
         function saveCategory() {
             const name = document.getElementById('newCatName').value.trim();
             if(name && !categories.includes(name)) {
                 categories.push(name);
-                renderCategories();
+                updateCategorySelect();
                 closeModal('categoryModal');
-            }
-        }
-        function deleteCategoryModal() {
-            const cat = prompt("Categoría a eliminar:");
-            if(cat) {
-                categories = categories.filter(c => c !== cat);
-                renderCategories();
+                alert("Categoría agregada. Ya puedes usarla al crear productos.");
             }
         }
 
@@ -437,10 +424,10 @@
             const price = document.getElementById('prodPrice').value;
             const category = document.getElementById('prodCategory').value;
             const description = document.getElementById('prodDesc').value;
-            const image = document.getElementById('prodImage').value || 'https://via.placeholder.com/300x250?text=3G+Store';
+            const image = document.getElementById('prodImage').value || 'https://via.placeholder.com/400x400?text=3G+Store';
 
             if(!title || !price) {
-                alert("Faltan datos obligatorios.");
+                alert("Por favor, llena al menos el título y el precio.");
                 return;
             }
 
@@ -451,17 +438,16 @@
                 const newId = Date.now();
                 products.push({ id: newId, title, price, category, description, image });
             }
-            renderProducts();
+            
             closeModal('productModal');
-            goHome();
+            goHome(); // Te regresa al inicio para ver el cambio
         }
 
         function editProduct(id) { openProductModal(id); }
         function deleteProduct(id) {
-            if(confirm("¿Eliminar producto?")) {
+            if(confirm("¿Estás seguro que deseas eliminar este producto?")) {
                 products = products.filter(p => p.id !== id);
-                goHome();
-                renderProducts();
+                goHome(); // Regresar al menú porque el producto ya no existe
             }
         }
 
