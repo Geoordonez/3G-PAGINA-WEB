@@ -31,7 +31,7 @@
             z-index: 100;
         }
 
-        .logo-container { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 24px; }
+        .logo-container { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 24px; cursor: pointer; }
         .logo-img { height: 45px; width: auto; object-fit: contain; }
 
         .search-bar { flex-grow: 1; max-width: 350px; margin: 0 20px; }
@@ -52,11 +52,16 @@
         .btn-accent:hover { background-color: var(--accent-hover); }
         .btn-danger { background-color: var(--danger); color: white; padding: 5px 10px; font-size: 12px; }
 
-        .admin-controls { display: none; margin-top: 20px; gap: 10px; flex-wrap: wrap; }
+        .admin-controls { display: none; margin-bottom: 25px; gap: 10px; flex-wrap: wrap; }
         .is-admin .admin-controls { display: flex; }
 
         main { padding: 30px 5%; max-width: 1200px; margin: 0 auto; }
 
+        /* VISTAS (Páginas internas) */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* CATEGORÍAS */
         .categories { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; }
         .cat-chip {
             padding: 8px 16px; background: var(--white); border: 2px solid var(--black); border-radius: 20px;
@@ -64,27 +69,43 @@
         }
         .cat-chip.active { background: var(--black); color: var(--white); }
 
+        /* GRILLA MINIMALISTA (Dashboard Principal) */
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
 
         .product-card {
             background: var(--white); border-radius: 20px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: transform 0.3s; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: transform 0.3s; cursor: pointer;
+            display: flex; flex-direction: column;
         }
-        .product-card:hover { transform: translateY(-5px); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
 
-        .product-img { width: 100%; height: 220px; object-fit: cover; background-color: #eee; cursor: pointer; transition: opacity 0.2s; }
-        .product-img:hover { opacity: 0.9; }
+        .product-img-container { width: 100%; height: 260px; background-color: #eee; overflow: hidden; position: relative; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .product-card:hover .product-img { transform: scale(1.03); }
 
-        .product-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-        .product-category { font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        .product-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
-        .product-desc { font-size: 13px; color: #666; line-height: 1.4; margin-bottom: 15px; flex-grow: 1; }
+        .product-preview-info { padding: 15px 20px; display: flex; flex-direction: column; gap: 5px; }
+        .product-preview-cat { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+        .product-preview-title { font-size: 16px; font-weight: 900; color: var(--text-color); }
+
+        /* VISTA DE DETALLE DE PRODUCTO */
+        .back-nav { margin-bottom: 20px; }
+        .detail-container {
+            background: var(--white); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+        }
+        @media(max-width: 768px) { .detail-container { grid-template-columns: 1fr; gap: 20px; } }
+
+        .detail-img-box { width: 100%; border-radius: 15px; overflow: hidden; background: #eee; cursor: zoom-in; }
+        .detail-img { width: 100%; height: 400px; object-fit: cover; display: block; }
         
-        .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-        .product-price { font-size: 16px; font-weight: 900; color: var(--black); }
+        .detail-info { display: flex; flex-direction: column; gap: 15px; }
+        .detail-category { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .detail-title { font-size: 28px; font-weight: 900; }
+        .detail-price { font-size: 24px; font-weight: 900; color: var(--black); }
+        .detail-desc { font-size: 15px; color: #555; line-height: 1.6; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; }
 
-        .admin-actions { display: none; justify-content: space-between; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
-        .is-admin .admin-actions { display: flex; }
+        .admin-detail-actions { display: none; gap: 10px; margin-top: 10px; }
+        .is-admin .admin-detail-actions { display: flex; }
 
         /* MODALES GENERALES */
         .modal {
@@ -118,14 +139,14 @@
         }
     </style>
 </head>
-<body>
+<body id="bodyContainer">
 
     <header>
-        <div class="logo-container">
+        <div class="logo-container" onclick="goHome()">
             <img src="image_bb1905.jpg" alt="3G Logo" class="logo-img" onerror="this.style.display='none'">
             <span>3G Store</span>
         </div>
-        <div class="search-bar">
+        <div class="search-bar" id="searchBarContainer">
             <input type="text" id="searchInput" placeholder="Busca tus diseños 3D..." onkeyup="renderProducts()">
         </div>
         <div class="header-actions">
@@ -133,16 +154,29 @@
         </div>
     </header>
 
-    <main id="mainContainer">
+    <main>
+        <!-- CONTROLES DE ADMINISTRADOR -->
         <div class="admin-controls">
             <button class="btn btn-accent" onclick="openProductModal()">+ Nuevo Producto</button>
             <button class="btn btn-primary" onclick="openCategoryModal()">+ Nueva Categoría</button>
             <button class="btn btn-danger" onclick="deleteCategoryModal()">- Eliminar Categoría</button>
         </div>
 
-        <br>
-        <div class="categories" id="categoriesContainer"></div>
-        <div class="products-grid" id="productsGrid"></div>
+        <!-- VISTA 1: DASHBOARD PRINCIPAL (FEED) -->
+        <section id="homeView" class="view-section active">
+            <div class="categories" id="categoriesContainer"></div>
+            <div class="products-grid" id="productsGrid"></div>
+        </section>
+
+        <!-- VISTA 2: DETALLE DE PRODUCTO -->
+        <section id="detailView" class="view-section">
+            <div class="back-nav">
+                <button class="btn btn-primary" onclick="goHome()">← Volver al Catálogo</button>
+            </div>
+            <div class="detail-container" id="detailContainerContent">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
     </main>
 
     <!-- MODAL DE LOGIN -->
@@ -168,7 +202,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE PRODUCTOS -->
+    <!-- MODAL DE PRODUCTOS (Crear / Editar) -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <h2 id="modalTitle">Producto</h2>
@@ -220,7 +254,7 @@
         let isAdmin = false;
         let currentFilter = "Todos";
 
-        // BASE DE DATOS INICIAL (Tu producto de encendedores)
+        // BASE DE DATOS INICIAL
         let categories = ["Novedades", "Encendedores"];
         let products = [
             { 
@@ -242,7 +276,7 @@
             if(isAdmin) {
                 isAdmin = false;
                 document.getElementById('loginBtn').innerText = "Staff";
-                document.getElementById('mainContainer').classList.remove('is-admin');
+                document.getElementById('bodyContainer').classList.remove('is-admin');
             } else {
                 document.getElementById('loginModal').classList.add('active');
             }
@@ -252,7 +286,7 @@
             if (document.getElementById('passcodeInput').value === ACCESS_CODE) {
                 isAdmin = true;
                 document.getElementById('loginBtn').innerText = "Salir";
-                document.getElementById('mainContainer').classList.add('is-admin');
+                document.getElementById('bodyContainer').classList.add('is-admin');
                 closeModal('loginModal');
                 document.getElementById('passcodeInput').value = '';
                 renderProducts();
@@ -262,6 +296,41 @@
         }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // NAVEGACIÓN ENTRE VISTAS
+        function goHome() {
+            document.getElementById('homeView').classList.add('active');
+            document.getElementById('detailView').classList.remove('active');
+            document.getElementById('searchBarContainer').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function showProductDetail(id) {
+            const prod = products.find(p => p.id === id);
+            if(!prod) return;
+
+            const container = document.getElementById('detailContainerContent');
+            container.innerHTML = `
+                <div class="detail-img-box" onclick="openImageModal('${prod.image}')">
+                    <img src="${prod.image}" class="detail-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/400x400?text=3G+Store'">
+                </div>
+                <div class="detail-info">
+                    <div class="detail-category">${prod.category}</div>
+                    <h1 class="detail-title">${prod.title}</h1>
+                    <div class="detail-price">${prod.price}</div>
+                    <div class="detail-desc">${prod.description}</div>
+                    <div class="admin-detail-actions">
+                        <button class="btn btn-accent" onclick="editProduct(${prod.id})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${prod.id})">Eliminar</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('homeView').classList.remove('active');
+            document.getElementById('detailView').classList.add('active');
+            document.getElementById('searchBarContainer').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
 
         // AMPLIAR IMAGEN
         function openImageModal(imgSrc) {
@@ -308,21 +377,16 @@
                 return;
             }
 
+            // DASHBOARD PRINCIPAL MINIMALISTA (Solo foto, categoría y título)
             filtered.forEach(prod => {
                 grid.innerHTML += `
-                    <div class="product-card">
-                        <img src="${prod.image}" class="product-img" alt="${prod.title}" onclick="openImageModal('${prod.image}')" onerror="this.src='https://via.placeholder.com/300x250?text=3G+Store'">
-                        <div class="product-info">
-                            <div class="product-category">${prod.category}</div>
-                            <div class="product-title">${prod.title}</div>
-                            <div class="product-desc">${prod.description}</div>
-                            <div class="product-footer">
-                                <span class="product-price">${prod.price}</span>
-                            </div>
-                            <div class="admin-actions">
-                                <button class="btn btn-accent" onclick="editProduct(${prod.id})">Editar</button>
-                                <button class="btn btn-danger" onclick="deleteProduct(${prod.id})">Eliminar</button>
-                            </div>
+                    <div class="product-card" onclick="showProductDetail(${prod.id})">
+                        <div class="product-img-container">
+                            <img src="${prod.image}" class="product-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/300x260?text=3G+Store'">
+                        </div>
+                        <div class="product-preview-info">
+                            <div class="product-preview-cat">${prod.category}</div>
+                            <div class="product-preview-title">${prod.title}</div>
                         </div>
                     </div>
                 `;
@@ -389,12 +453,14 @@
             }
             renderProducts();
             closeModal('productModal');
+            goHome();
         }
 
         function editProduct(id) { openProductModal(id); }
         function deleteProduct(id) {
             if(confirm("¿Eliminar producto?")) {
                 products = products.filter(p => p.id !== id);
+                goHome();
                 renderProducts();
             }
         }
