@@ -103,7 +103,9 @@
         .detail-category { display: inline-block; background: #f0f0f0; color: var(--gray); font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; align-self: flex-start; letter-spacing: 1px; }
         .detail-title { font-size: 32px; font-weight: 900; line-height: 1.1; }
         .detail-price { font-size: 28px; font-weight: 900; color: var(--accent); }
-        .detail-desc { font-size: 15px; color: #555; line-height: 1.7; margin-top: 10px; }
+        
+        /* AQUI ESTÁ EL FIX PARA QUE RESPETA TUS SALTOS DE LÍNEA (\n) */
+        .detail-desc { font-size: 15px; color: #555; line-height: 1.7; margin-top: 10px; white-space: pre-line; }
 
         .admin-detail-actions { display: none; gap: 10px; margin-top: 25px; padding-top: 25px; border-top: 1px solid #eee; }
         .is-admin .admin-detail-actions { display: flex; }
